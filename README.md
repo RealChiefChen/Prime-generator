@@ -1,6 +1,7 @@
 # Prime-generator
 
  This is a prime generator / detector / random generator / factor detector
+ 
  Type 'help' for help
  
  Installation
