@@ -1,9 +1,13 @@
 use num::integer::Roots;
 use rand::Rng;
+use std::thread;
+use std::time::Duration;
 use std::io;
 
 fn main() {
-    println!("Type 'help' for help");
+    println!("Type 'help' for help.");
+    println!("Type 'slow' for slow mode");
+    let mut slow: bool = false;
     loop {
         let mut select = String::new();
 
@@ -14,9 +18,20 @@ fn main() {
             "factors".to_string(),
         ];
 
+        let fn_is_slow = [
+            "slow".to_string(),
+            "fast".to_string(),
+            "slow".to_string(),
+            "fast".to_string(),
+        ];
+
         for i in 1..options.len() + 1 {
             // prints options allowing more inputs to easily be introduced
-            println!("[{}]: {}", i, options[i - 1])
+            if slow == true {
+                println!("[{}]: ({}) {}", i, fn_is_slow[i - 1], options[i - 1])
+            } else {
+                println!("[{}]: {}", i, options[i - 1])
+            }
         }
         
         io::stdin()
@@ -24,9 +39,16 @@ fn main() {
             .expect("Failed to read line");
         
         if select.trim() == "help" {
-            println!("Input the number left of the function to activate it\nPress 0 to quit the program");
+            println!("Input the number left of the function to activate it");
+            println!("Press 0 to quit the program");
+            println!("Input 'slow' to turn on slow mode (not all will be slowed)");
         }
         
+        if select.trim() == "slow" {
+            slow = !slow;
+            println!("Slow mode = {}", slow);
+        }
+
         let select: i32 = match select.trim().parse() {
             Ok(num) => num,
             Err(_) => continue,
@@ -35,19 +57,26 @@ fn main() {
         match select {
             // matches the given select value to a function else
             0 => std::process::exit(0),
-            1 => prime_gen(),
+            1 => prime_gen(slow),
             2 => prime_detct(),
-            3 => prime_rand(),
+            3 => prime_rand(slow),
             4 => prime_fact(),
             _ => println!("Not an option"),
             //Note!: if the number input is too large for select it will fail to print "Not an option"
             // I would like to find a solution to this without increasing the value of select or making it unsigned
+            
             // Note! too bad idc anymore its now an i32 lol
         }
     }
 }
 
-fn prime_gen() {
+fn slow_fn(slow: bool) {
+    if slow == true {
+        thread::sleep(Duration::from_nanos(1));
+    }
+}
+
+fn prime_gen(slow: bool) {
     // simply reads inputs
 
     let mut input = String::new();
@@ -66,14 +95,14 @@ fn prime_gen() {
     let input: u128 = match input.trim().parse() {
         Ok(num) => num,
         Err(_) => {
-            prime_gen();
+            prime_gen(slow);
             return;
         }
     };
     let input2: u128 = match input2.trim().parse() {
         Ok(num) => num,
         Err(_) => {
-            prime_gen();
+            prime_gen(slow);
             return;
         }
     };
@@ -84,6 +113,8 @@ fn prime_gen() {
 
         for i in input2..input + 1 {
             // prime_gen loop 2
+
+            slow_fn(slow);
 
             let input = i; //not sure why this is here but I trust myself
 
@@ -158,7 +189,7 @@ fn prime_detct() {
     println!("Done!")
 }
 
-fn prime_rand() {
+fn prime_rand(slow: bool) {
     // takes in all inputs
     let mut input = String::new();
     let mut input2 = String::new();
@@ -173,7 +204,7 @@ fn prime_rand() {
     let input2: u128 = match input2.trim().parse() {
         Ok(num) => num,
         Err(_) => {
-            prime_rand();
+            prime_rand(slow);
             return;
         }
     };
@@ -186,7 +217,7 @@ fn prime_rand() {
     let input: u128 = match input.trim().parse() {
         Ok(num) => num,
         Err(_) => {
-            prime_rand();
+            prime_rand(slow);
             return;
         }
     };
@@ -204,7 +235,7 @@ fn prime_rand() {
     let input3: u128 = match input3.trim().parse() {
         Ok(num) => num,
         Err(_) => {
-            prime_rand();
+            prime_rand(slow);
             return;
         }
     };
@@ -213,6 +244,8 @@ fn prime_rand() {
         let mut prime = true;
 
         let prime_num = rand::thread_rng().gen_range(input2..=input); // generates random number within the given range
+
+        slow_fn(slow);
 
         for i in 2..prime_num.sqrt() + 1 {
             if prime_num % i == 0 {
